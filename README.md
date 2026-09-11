@@ -1,5 +1,9 @@
 # Dynamic Volume
 
+Compressor-based browser volume boost. 
+
+Currently available plugins are not compressor-based thus while they boost the volume, for high-dynamic videos like Nolan's movies it would be too loud at times. This extension solves that so me and my GF could watch The Dark Knight without bleeding ears.
+
 Dynamic Volume is a dependency-free Chrome 116+ extension that makes tab audio more comfortable using dynamic-range compression, optional BS.1770-style automatic leveling, and linked-stereo sample-peak protection.
 
 All processing happens locally. The extension has no host permissions, content scripts, network requests, analytics, remote code, voice recognition, or audio recording.
