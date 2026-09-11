@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Dynamic Volume",
+  "version": "0.1.0",
+  "description": "Comfortable, consistent tab audio using compression, optional loudness leveling, and sample-peak protection.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "activeTab",
+    "offscreen",
+    "storage",
+    "tabCapture"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Dynamic Volume"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}

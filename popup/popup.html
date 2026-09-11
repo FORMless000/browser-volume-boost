@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dynamic Volume</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">DYNAMIC VOLUME</p>
+          <h1>Comfortable audio</h1>
+        </div>
+        <span id="active-count" class="active-count" aria-label="Active processed tabs">0</span>
+      </header>
+
+      <section class="status-card" aria-live="polite">
+        <div class="status-copy">
+          <span id="status-dot" class="status-dot"></span>
+          <div>
+            <strong id="status-title">Checking this tab…</strong>
+            <p id="status-detail">Audio stays entirely on this device.</p>
+          </div>
+        </div>
+        <button id="tab-toggle" class="primary-button" disabled>Enable</button>
+      </section>
+
+      <section class="meter-section" aria-label="Output level">
+        <div class="meter-labels">
+          <span>OUTPUT</span>
+          <span id="peak-value">— dBFS</span>
+        </div>
+        <div class="meter-track"><div id="meter-fill" class="meter-fill"></div></div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h2>Character</h2>
+          <span id="preset-label">Balanced</span>
+        </div>
+        <div id="preset-grid" class="preset-grid" role="group" aria-label="Compression preset">
+          <button data-preset="gentle">Gentle</button>
+          <button data-preset="balanced">Balanced</button>
+          <button data-preset="dialogue">Dialogue</button>
+          <button data-preset="night">Night</button>
+        </div>
+        <label class="range-row" for="strength">
+          <span>Strength</span>
+          <output id="strength-value">65%</output>
+        </label>
+        <input id="strength" type="range" min="0" max="100" step="1" value="65">
+      </section>
+
+      <section class="auto-card">
+        <div>
+          <div class="feature-title">
+            <strong>Auto Level</strong>
+            <span class="optional-pill">OPTIONAL</span>
+          </div>
+          <p>Slowly balances different clips without chasing silence.</p>
+        </div>
+        <label class="switch">
+          <input id="auto-level" type="checkbox" aria-label="Enable automatic loudness leveling">
+          <span class="switch-track"></span>
+        </label>
+      </section>
+
+      <details id="advanced">
+        <summary>Advanced controls</summary>
+        <div class="advanced-content">
+          <p class="advanced-note">Manual compressor edits create a Custom preset.</p>
+
+          <div class="control-grid">
+            <label>Threshold <output id="threshold-value"></output></label>
+            <input id="threshold" type="range" min="-60" max="0" step="1">
+            <label>Knee <output id="knee-value"></output></label>
+            <input id="knee" type="range" min="0" max="40" step="1">
+            <label>Ratio <output id="ratio-value"></output></label>
+            <input id="ratio" type="range" min="1" max="20" step="0.1">
+            <label>Attack <output id="attack-value"></output></label>
+            <input id="attack" type="range" min="0" max="1000" step="1">
+            <label>Release <output id="release-value"></output></label>
+            <input id="release" type="range" min="10" max="1000" step="10">
+            <label>Output trim <output id="trim-value"></output></label>
+            <input id="trim" type="range" min="-12" max="6" step="0.5">
+            <label>Target loudness <output id="target-value"></output></label>
+            <input id="target" type="range" min="-24" max="-14" step="1">
+            <label>Maximum boost <output id="boost-value"></output></label>
+            <input id="boost" type="range" min="0" max="12" step="1">
+          </div>
+
+          <div class="metrics-grid" aria-label="Live processing meters">
+            <div><span>Loudness</span><strong id="loudness-value">—</strong></div>
+            <div><span>Compression</span><strong id="compression-value">—</strong></div>
+            <div><span>Auto gain</span><strong id="gain-value">—</strong></div>
+            <div><span>Limiter</span><strong id="limiter-value">—</strong></div>
+          </div>
+          <button id="reset-settings" class="secondary-button">Reset global settings</button>
+        </div>
+      </details>
+
+      <footer>
+        Sample-peak protection at −1 dBFS · Chrome 116+
+      </footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

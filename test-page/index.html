@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dynamic Volume test page</title>
+    <style>
+      body { max-width: 780px; margin: 40px auto; padding: 0 20px; font: 16px/1.5 system-ui; }
+      button { margin: 5px; padding: 9px 12px; }
+      iframe { width: 100%; height: 180px; margin-top: 24px; border: 1px solid #aaa; }
+      code { background: #eee; padding: 2px 5px; }
+    </style>
+  </head>
+  <body>
+    <h1>Dynamic Volume deterministic test page</h1>
+    <p>The alternating signal switches between −30 and −6 dBFS every two seconds.</p>
+    <button id="steady">Start steady −18 dBFS tone</button>
+    <button id="alternating">Start alternating tone</button>
+    <button id="impulse">Play full-scale impulse</button>
+    <button id="stop">Stop</button>
+    <p id="state">Stopped</p>
+    <p>Deterministic HTML media element:</p>
+    <audio id="media" controls loop></audio>
+    <iframe src="http://127.0.0.1:8001/embed.html" title="Cross-origin audio test"></iframe>
+    <script>
+      let context;
+      let oscillator;
+      let gain;
+      let timer;
+      const dbToGain = (db) => 10 ** (db / 20);
+      function makeWaveUrl() {
+        const sampleRate = 48000;
+        const frames = sampleRate * 2;
+        const buffer = new ArrayBuffer(44 + frames * 2);
+        const view = new DataView(buffer);
+        const text = (offset, value) => [...value].forEach((character, index) => view.setUint8(offset + index, character.charCodeAt(0)));
+        text(0, "RIFF"); view.setUint32(4, 36 + frames * 2, true); text(8, "WAVE");
+        text(12, "fmt "); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true); text(36, "data"); view.setUint32(40, frames * 2, true);
+        for (let index = 0; index < frames; index += 1) {
+          const amplitude = index < sampleRate ? dbToGain(-30) : dbToGain(-6);
+          view.setInt16(44 + index * 2, Math.round(32767 * amplitude * Math.sin((2 * Math.PI * 440 * index) / sampleRate)), true);
+        }
+        return URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
+      }
+      document.querySelector("#media").src = makeWaveUrl();
+      async function start(db) {
+        stop();
+        context = new AudioContext({ sampleRate: 48000 });
+        oscillator = new OscillatorNode(context, { frequency: 440 });
+        gain = new GainNode(context, { gain: dbToGain(db) });
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start();
+        document.querySelector("#state").textContent = `Playing ${db} dBFS`;
+      }
+      function stop() {
+        clearInterval(timer);
+        if (oscillator) oscillator.stop();
+        if (context) context.close();
+        oscillator = gain = context = null;
+        document.querySelector("#state").textContent = "Stopped";
+      }
+      document.querySelector("#steady").onclick = () => start(-18);
+      document.querySelector("#alternating").onclick = async () => {
+        await start(-30);
+        let loud = false;
+        timer = setInterval(() => {
+          loud = !loud;
+          const db = loud ? -6 : -30;
+          gain.gain.setTargetAtTime(dbToGain(db), context.currentTime, 0.01);
+          document.querySelector("#state").textContent = `Playing ${db} dBFS`;
+        }, 2000);
+      };
+      document.querySelector("#impulse").onclick = async () => {
+        const impulseContext = new AudioContext({ sampleRate: 48000 });
+        const buffer = new AudioBuffer({ length: 2, sampleRate: 48000 });
+        buffer.getChannelData(0)[0] = 1;
+        const source = new AudioBufferSourceNode(impulseContext, { buffer });
+        source.connect(impulseContext.destination);
+        source.start();
+      };
+      document.querySelector("#stop").onclick = stop;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><title>Cross-origin audio frame</title></head>
+  <body>
+    <p>Cross-origin iframe oscillator</p>
+    <button id="toggle">Start 660 Hz tone</button>
+    <script>
+      let context;
+      let oscillator;
+      document.querySelector("#toggle").onclick = async (event) => {
+        if (oscillator) {
+          oscillator.stop();
+          context.close();
+          oscillator = context = null;
+          event.target.textContent = "Start 660 Hz tone";
+          return;
+        }
+        context = new AudioContext({ sampleRate: 48000 });
+        oscillator = new OscillatorNode(context, { frequency: 660 });
+        const gain = new GainNode(context, { gain: 0.08 });
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start();
+        event.target.textContent = "Stop tone";
+      };
+    </script>
+  </body>
+</html>
